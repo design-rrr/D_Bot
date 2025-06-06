@@ -1,5 +1,6 @@
 {
   "name": "hnfbot",
+  "type":"module",
   "version": "1.0.0",
   "description": "HNF Poster Bot",
   "main": "index.js",
@@ -7,6 +8,7 @@
     "start": "node index.js"
   },
   "dependencies": {
+  "@nostr-dev-kit/ndk": "^0.9.1",
   "node-fetch": "^3.3.2",
   "rss-parser": "^3.13.0",
   "twitter-api-v2": "^1.18.0",
