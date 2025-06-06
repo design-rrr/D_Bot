@@ -1,11 +1,8 @@
 import fetch from 'node-fetch'
 import * as cheerio from 'cheerio'
-import dotenv from 'dotenv'
 import fs from 'fs'
 import { TwitterApi } from 'twitter-api-v2'
-import Nostr from './lib/nostr.js' // assume this is your nostr wrapper like in SN code
-
-dotenv.config()
+import Nostr from './lib/nostr.js'
 
 const RSS_URL = 'https://stacker.news/~HealthAndFitness/rss'
 const POSTED_CACHE = './posted.json'
@@ -75,7 +72,16 @@ function extractHandles(text) {
 }
 
 async function postToTwitter({ title, link, twitter, body }) {
-  if (!process.env.TWITTER_POSTER_API_KEY) return console.log('Twitter not configured')
+  // In GitHub Actions, secrets are available as environment variables
+  // (e.g., process.env.TWITTER_POSTER_API_KEY)
+  if (
+    !process.env.TWITTER_POSTER_API_KEY ||
+    !process.env.TWITTER_POSTER_API_KEY_SECRET ||
+    !process.env.TWITTER_POSTER_ACCESS_TOKEN ||
+    !process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
+  ) {
+    return console.log('Twitter not configured')
+  }
   const client = new TwitterApi({
     appKey: process.env.TWITTER_POSTER_API_KEY,
     appSecret: process.env.TWITTER_POSTER_API_KEY_SECRET,
@@ -99,6 +105,8 @@ async function postToTwitter({ title, link, twitter, body }) {
 }
 
 async function postToNostr({ title, link, npub, body }) {
+  // In GitHub Actions, secrets are available as environment variables
+  // (e.g., process.env.NOSTR_PRIVATE_KEY)
   if (!process.env.NOSTR_PRIVATE_KEY) return console.log('Nostr not configured')
   const nostr = Nostr.get()
   const signer = nostr.getSigner({ privKey: process.env.NOSTR_PRIVATE_KEY })
