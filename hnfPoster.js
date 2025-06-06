@@ -41,24 +41,40 @@ async function getPostBody(link) {
   const res = await fetch(link)
   const html = await res.text()
   const $ = cheerio.load(html)
-  const paragraphs = $('article.item_fullItemContainer__ZAYtZ')
+  // Select the main article body by class name
+  const article = $('div.article.item_fullItemContainer__ZAYtZ')
   let text = ''
-  paragraphs.each((_, p) => {
-    text += $(p).text().trim() + '\n'
-  })
-  return text.trim()
+  if (article.length) {
+    // Get all text inside the article div
+    text = article.text().trim()
+  } else {
+    // fallback: try the old selector if needed
+    text = $('article.item_fullItemContainer__ZAYtZ').text().trim()
+  }
+  return text
 }
 
 function extractHandles(text) {
-  const nostrMatch = text.match(/Nostr:\s*(npub1[a-z0-9]+)/i)
-  const twitterMatch = text.match(/X:\s*@?([a-zA-Z0-9_]+)/i)
-  return {
-    npub: nostrMatch?.[1] || null,
-    twitter: twitterMatch?.[1] || null
+  // Look for handles at the end of the article body
+  // Accepts lines like: 'X: @username' and 'Nostr: npub1...'
+  let npub = null, twitter = null
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i]
+    if (!npub) {
+      const m = line.match(/Nostr:\s*(npub1[a-z0-9]+)/i)
+      if (m) npub = m[1]
+    }
+    if (!twitter) {
+      const m = line.match(/X:\s*@?([a-zA-Z0-9_]+)/i)
+      if (m) twitter = m[1]
+    }
+    if (npub && twitter) break
   }
+  return { npub, twitter }
 }
 
-async function postToTwitter({ title, link, twitter }) {
+async function postToTwitter({ title, link, twitter, body }) {
   if (!process.env.TWITTER_POSTER_API_KEY) return console.log('Twitter not configured')
   const client = new TwitterApi({
     appKey: process.env.TWITTER_POSTER_API_KEY,
@@ -66,17 +82,34 @@ async function postToTwitter({ title, link, twitter }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  const tag = twitter ? `by @${twitter}` : ''
-  const message = `${title}\n${tag}\n${link}`
+  let message = `${title}\n${link}`
+  if (twitter) message = `${title}\nby @${twitter}\n${link}`
+  // Optionally add a short excerpt from the body
+  if (body) {
+    const excerpt = body.split('\n').slice(0, 2).join(' ')
+    if (excerpt && !message.includes(excerpt)) {
+      message = `${title}\n${excerpt}\n${link}`
+      if (twitter) message = `${title}\n${excerpt}\nby @${twitter}\n${link}`
+    }
+  }
+  // Twitter/X limit: 280 chars
+  if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
 }
 
-async function postToNostr({ title, link, npub }) {
+async function postToNostr({ title, link, npub, body }) {
   if (!process.env.NOSTR_PRIVATE_KEY) return console.log('Nostr not configured')
   const nostr = Nostr.get()
   const signer = nostr.getSigner({ privKey: process.env.NOSTR_PRIVATE_KEY })
-  const content = `${title}\n${npub ? `nostr:${npub}\n` : ''}${link}`
+  let content = `${title}\n${link}`
+  if (body) {
+    const excerpt = body.split('\n').slice(0, 2).join(' ')
+    if (excerpt && !content.includes(excerpt)) {
+      content = `${title}\n${excerpt}\n${link}`
+    }
+  }
+  if (npub) content = `${content}\nnostr:${npub}`
   const tags = npub ? [['p', npub]] : []
   await nostr.publish({
     kind: 1,
@@ -95,8 +128,8 @@ export async function runHnfBot() {
     if (!item.link || posted.has(item.link)) continue
     const body = await getPostBody(item.link)
     const { npub, twitter } = extractHandles(body)
-    await postToTwitter({ title: item.title, link: item.link, twitter })
-    await postToNostr({ title: item.title, link: item.link, npub })
+    await postToTwitter({ title: item.title, link: item.link, twitter, body })
+    await postToNostr({ title: item.title, link: item.link, npub, body })
     posted.add(item.link)
   }
 
