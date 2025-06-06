@@ -1,0 +1,2 @@
+npm init -y
+npm install rss-parser twitter-api-v2 nostr-tools dotenv cheerio
