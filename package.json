@@ -8,6 +8,6 @@
     "dotenv": "^16.4.5",
     "node-fetch": "^3.3.2",
     "twitter-api-v2": "^1.18.0",
-    "@nostr-dev-kit/ndk": "^0.16.0"
+    "@nostr-dev-kit/ndk": "^2.14.24"
   }
 }
