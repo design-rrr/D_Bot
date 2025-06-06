@@ -7,6 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
+  "node-fetch": "^3.3.2",
   "rss-parser": "^3.13.0",
   "twitter-api-v2": "^1.18.0",
   "nostr-tools": "^2.6.0",
