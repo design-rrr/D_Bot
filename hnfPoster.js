@@ -1,5 +1,4 @@
 import fetch from 'node-fetch'
-import * as cheerio from 'cheerio'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import { TwitterApi } from 'twitter-api-v2'
