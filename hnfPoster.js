@@ -81,12 +81,31 @@ export async function runHnfBot() {
 
   for (const item of items) {
     if (!item.link || posted.has(item.link)) continue
-    await postToTwitter({ title: item.title, link: item.link, author: item.author })
-    await postToNostr({ title: item.title, link: item.link, author: item.author })
-    posted.add(item.link) // Add the link to the posted set
+    let tweeted = false, nostrPosted = false
+    // Try to post to Twitter, but skip duplicate error
+    try {
+      await postToTwitter({ title: item.title, link: item.link, author: item.author })
+      tweeted = true
+    } catch (e) {
+      if (e?.data?.detail?.includes('duplicate')) {
+        console.log('Duplicate tweet, skipping X:', item.link)
+      } else {
+        console.error('Twitter error:', e)
+      }
+    }
+    // Always try to post to Nostr
+    try {
+      await postToNostr({ title: item.title, link: item.link, author: item.author })
+      nostrPosted = true
+    } catch (e) {
+      console.error('Nostr error:', e)
+    }
+    // If either post succeeded, add to posted.json
+    if (tweeted || nostrPosted) {
+      posted.add(item.link)
+      savePostedCache([...posted])
+    }
   }
-
-  savePostedCache([...posted]) // Save all posted links
   console.log('✅ Done.')
 }
 
