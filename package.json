@@ -1,15 +1,13 @@
 {
-  "name": "hnf-bot",
+  "name": "hnf-poster-bot",
   "version": "1.0.0",
-  "description": "A bot that reposts every ~HealthAndFitness post from Stacker.News to Twitter and Nostr.",
+  "type": "module",
   "main": "hnfPoster.js",
-  "scripts": {
-    "start": "node hnfPoster.js"
-  },
   "dependencies": {
-    "dotenv": "^16.0.3",
-    "nostr-tools": "^1.8.0",
-    "rss-parser": "^3.12.0",
-    "twitter-api-v2": "^1.14.0"
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2",
+    "twitter-api-v2": "^1.18.0",
+    "@nostr-dev-kit/ndk": "^0.16.0"
   }
 }
