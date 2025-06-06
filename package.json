@@ -12,7 +12,7 @@
   "twitter-api-v2": "^1.18.0",
   "nostr-tools": "^2.6.0",
   "dotenv": "^16.4.5",
-  "cheerio": "^1.0.0-rc.12"
+  "cheerio": "^1.0.0-rc.12",
   "bech32": "^2.0.0"
   }
 }
