@@ -129,9 +129,18 @@ class NostrPoster:
             event = Event(message)
             event.sign(self.pk.hex())
             
-            # Publish to relays
-            self.relay_manager.publish_event(event)
-            self.relay_manager.run_sync()
+            # Publish to relays with retry logic
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    self.relay_manager.publish_event(event)
+                    self.relay_manager.run_sync()
+                    break
+                except Exception as relay_error:
+                    if attempt == max_retries - 1:
+                        raise relay_error
+                    print(f"Relay attempt {attempt + 1} failed, retrying...")
+                    time.sleep(1)
             
             # Add to posted items and save cache
             posted_items.add(item_id)
@@ -174,6 +183,13 @@ class NostrPoster:
         print(f"Posted: {posted_count}")
         print(f"Skipped: {skipped_count}")
         print(f"Total processed: {len(entries)}")
+
+    def close(self):
+        """Close relay connections"""
+        try:
+            self.relay_manager.close_connections()
+        except Exception as e:
+            print(f"Error closing connections: {e}")
 
 # Convenience functions for backward compatibility
 def post_to_nostr(entry):
