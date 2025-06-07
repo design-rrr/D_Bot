@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 
 dotenv.config()
 
-const RSS_URL = 'https://stacker.news/~HealthAndFitness/rss'
+const RSS_URL = 'https://stacker.news/~Design/rss'
 const POSTED_CACHE = './posted.txt'
 
 function loadPostedCache() {
@@ -45,7 +45,7 @@ async function postToTwitter({ title, link, author }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  let message = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${link}`
+  let message = `${author} just posted ${title} in ~Design. Check out now ${link}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
