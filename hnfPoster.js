@@ -2,33 +2,22 @@ import fetch from 'node-fetch'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import { TwitterApi } from 'twitter-api-v2'
-import Nostr from './lib/nostr.js' // assume this is your nostr wrapper like in SN code
+import { spawn } from 'child_process'
 
 dotenv.config()
 
 const RSS_URL = 'https://stacker.news/~HealthAndFitness/rss'
-const POSTED_CACHE = './posted.json'
-const RELAYS = [
-  'wss://nos.lol/', 'wss://nostr.land/', 'wss://nostr.wine/',
-  'wss://purplerelay.com/', 'wss://relay.damus.io/',
-  'wss://relay.snort.social/', 'wss://relay.nostr.band/',
-  'wss://relay.primal.net/'
-]
+const POSTED_CACHE = './posted.txt'
 
 function loadPostedCache() {
-  if (!fs.existsSync(POSTED_CACHE)) return []
+  if (!fs.existsSync(POSTED_CACHE)) return new Set()
   const raw = fs.readFileSync(POSTED_CACHE, 'utf8').trim()
-  if (!raw) return []
-  try {
-    return JSON.parse(raw).posted || []
-  } catch (e) {
-    console.error('Invalid posted.json, resetting cache.')
-    return []
-  }
+  if (!raw) return new Set()
+  return new Set(raw.split('\n').map(l => l.trim()).filter(Boolean))
 }
 
-function savePostedCache(posted) {
-  fs.writeFileSync(POSTED_CACHE, JSON.stringify({ posted }, null, 2))
+function savePostedCache(postedSet) {
+  fs.writeFileSync(POSTED_CACHE, Array.from(postedSet).join('\n') + '\n')
 }
 
 async function getRSSItems() {
@@ -39,7 +28,6 @@ async function getRSSItems() {
     const block = m[1]
     const link = block.match(/<link>(.*?)<\/link>/)?.[1]?.trim()
     const title = block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim()
-    // atom:author and atom:name may have namespace, so match with or without prefix
     const author = block.match(/<atom:author>[\s\S]*?<atom:name>([\s\S]*?)<\/atom:name>[\s\S]*?<\/atom:author>/)?.[1]?.trim()
       || block.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>[\s\S]*?<\/author>/)?.[1]?.trim()
       || 'Someone'
@@ -62,27 +50,30 @@ async function postToTwitter({ title, link, author }) {
 }
 
 async function postToNostr({ title, link, author }) {
-  if (!process.env.NOSTR_PRIVATE_KEY) return console.log('Nostr not configured')
-  const nostr = Nostr.get()
-  const signer = nostr.getSigner({ privKey: process.env.NOSTR_PRIVATE_KEY })
-  let content = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${link}`
-  await nostr.publish({
-    kind: 1,
-    created_at: Math.floor(Date.now() / 1000),
-    content,
-    tags: []
-  }, { relays: RELAYS, signer, timeout: 5000 })
-  console.log('Posted to Nostr:', content)
+  // Call nostr.py as a subprocess
+  return new Promise((resolve, reject) => {
+    const entry = JSON.stringify({
+      title,
+      link,
+      tags: [],
+    })
+    const py = spawn('python3', ['nostr.py', entry])
+    py.stdout.on('data', data => process.stdout.write(data))
+    py.stderr.on('data', data => process.stderr.write(data))
+    py.on('close', code => {
+      if (code === 0) resolve()
+      else reject(new Error('nostr.py failed'))
+    })
+  })
 }
 
 export async function runHnfBot() {
-  const posted = new Set(loadPostedCache())
+  const posted = loadPostedCache()
   const items = await getRSSItems()
 
   for (const item of items) {
     if (!item.link || posted.has(item.link)) continue
     let tweeted = false, nostrPosted = false
-    // Try to post to Twitter, but skip duplicate error
     try {
       await postToTwitter({ title: item.title, link: item.link, author: item.author })
       tweeted = true
@@ -93,23 +84,20 @@ export async function runHnfBot() {
         console.error('Twitter error:', e)
       }
     }
-    // Always try to post to Nostr
     try {
       await postToNostr({ title: item.title, link: item.link, author: item.author })
       nostrPosted = true
     } catch (e) {
       console.error('Nostr error:', e)
     }
-    // If either post succeeded, add to posted.json
     if (tweeted || nostrPosted) {
       posted.add(item.link)
-      savePostedCache([...posted])
+      savePostedCache(posted)
     }
   }
   console.log('✅ Done.')
 }
 
-// Run directly
 if (process.argv[1].includes('hnfPoster.js')) {
   runHnfBot()
 }
