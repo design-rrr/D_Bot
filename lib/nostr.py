@@ -105,7 +105,7 @@ class NostrPoster:
 
     def build_nostr_message(self, entry):
         """Build the message content for Nostr - matches Twitter template exactly"""
-        return f"@{entry['author']} just posted 「{entry['title']}」 in #Design. Check it out at {entry['link']}/r/deSign_r"
+        return f"@{entry['author']} just posted \"{entry['title']}\" in #Design. Check it out at {entry['link']}/r/deSign_r"
 
     def post_item(self, entry):
         """Post a single item to Nostr with duplicate checking"""
