@@ -1,5 +1,5 @@
 {
-  "name": "hnfbot",
+  "name": "D_bot",
   "type": "module",
   "main": "D_Poster.js",
   "dependencies": {
