@@ -6,109 +6,7 @@ from pynostr.event import Event
 from pynostr.relay_manager import RelayManager
 from pynostr.key import PrivateKey
 
-# 2. DUPLICATE PREVENTION FUNCTIONS 
-def load_posted_items(posted_file="posted.txt"):
-    """Load posted items - make this identical to your Twitter implementation"""
-    if not os.path.exists(posted_file):
-        return set()
-    
-    try:
-        with open(posted_file, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            if not content:
-                return set()
-            
-            # Handle JSON format
-            try:
-                data = json.loads(content)
-                if isinstance(data, list):
-                    return set(data)
-                elif isinstance(data, dict) and 'posted_items' in data:
-                    return set(data['posted_items'])
-            except json.JSONDecodeError:
-                pass
-            
-            # Handle line-by-line format
-            return set(line.strip() for line in content.split('\n') if line.strip())
-    except:
-        return set()
-
-def save_posted_items(posted_items, posted_file="posted.txt"):
-    """Save posted items - make this identical to your Twitter implementation"""
-    try:
-        data = {
-            'posted_items': list(posted_items),
-            'last_updated': datetime.now().isoformat()
-        }
-        with open(posted_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2)
-    except Exception as e:
-        print(f"Error saving posted items: {e}")
-
-def get_item_id(item):
-    """Generate item ID - MUST be identical to your Twitter implementation"""
-    # CRITICAL: Use the same ID generation logic as your Twitter code
-    # Check your Twitter implementation and copy the exact same logic here
-    
-    # Common patterns (choose the one that matches your Twitter implementation):
-    return str(item.get('id', ''))  # Most common - using Stacker.News ID
-    # return item.get('url', '')      # Alternative - using URL as ID
-    # return f"{item.get('title', '')}{item.get('url', '')}"  # Alternative - title+url
-
-# 3. MODIFIED POSTING FUNCTION - Replace your existing posting function with this
-def post_to_nostr_safe(item):
-    """
-    Replace your current posting function with this one
-    """
-    # Load posted items
-    posted_items = load_posted_items("posted.txt")
-    
-    # Get item ID (must match Twitter implementation)
-    item_id = get_item_id(item)
-    
-    # Check if already posted
-    if item_id in posted_items:
-        print(f"Skipping already posted item: {item.get('title', 'Unknown')[:50]}...")
-        return False
-    
-    try:
-        # Call your existing Nostr posting logic
-        success = post_to_nostr_original(item)  # Rename your current function to this
-        
-        if success:
-            # Add to posted items and save
-            posted_items.add(item_id)
-            save_posted_items(posted_items, "posted.txt")
-            print(f"✓ Posted to Nostr: {item.get('title', 'Unknown')[:50]}...")
-            return True
-        else:
-            print(f"✗ Failed to post to Nostr: {item.get('title', 'Unknown')[:50]}...")
-            return False
-            
-    except Exception as e:
-        print(f"Error posting to Nostr: {e}")
-        return False
-
-# 4. YOUR EXISTING FUNCTIONS - Keep all your existing Nostr functions here
-# But rename your main posting function to avoid conflicts
-
-def post_to_nostr_original(item):
-    """
-    Your existing Nostr posting logic goes here
-    (rename your current posting function to this)
-    """
-    # ... your existing Nostr posting code ...
-    pass
-
-# ... rest of your existing functions ...
-
-# 5. MAIN EXECUTION - Update your main loop to use the new function
-if __name__ == "__main__":
-    # Your existing code, but replace calls to your old posting function
-    # with calls to post_to_nostr_safe(item)
-    pass
-
-# Load private key from environment variable or fallback
+# Configuration
 NOSTR_PRIVATE_KEY = os.environ.get("NOSTR_PRIVATE_KEY", "nsec12345")
 NOSTR_RELAYS = [
     "wss://relay.damus.io",
@@ -123,67 +21,215 @@ NOSTR_RELAYS = [
     "wss://purplerelay.com"
 ]
 
-POSTED_CACHE = "posted.txt"
+POSTED_CACHE_FILE = "posted.txt"
 
-def load_posted_cache():
-    if not os.path.exists(POSTED_CACHE):
+# Duplicate Prevention Functions
+def load_posted_items(posted_file=POSTED_CACHE_FILE):
+    """Load posted items from cache file"""
+    if not os.path.exists(posted_file):
         return set()
-    with open(POSTED_CACHE, "r") as f:
-        lines = [line.strip() for line in f if line.strip()]
-    return set(lines)
+    
+    try:
+        with open(posted_file, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+            if not content:
+                return set()
+            
+            # Try JSON format first
+            try:
+                data = json.loads(content)
+                if isinstance(data, list):
+                    return set(data)
+                elif isinstance(data, dict) and 'posted_items' in data:
+                    return set(data['posted_items'])
+            except json.JSONDecodeError:
+                pass
+            
+            # Fallback to line-by-line format
+            return set(line.strip() for line in content.split('\n') if line.strip())
+            
+    except Exception as e:
+        print(f"Error loading posted items: {e}")
+        return set()
 
-def save_posted_cache(posted_set):
-    with open(POSTED_CACHE, "w") as f:
-        for link in posted_set:
-            f.write(link + "\n")
+def save_posted_items(posted_items, posted_file=POSTED_CACHE_FILE):
+    """Save posted items to cache file"""
+    try:
+        data = {
+            'posted_items': list(posted_items),
+            'last_updated': datetime.now().isoformat()
+        }
+        with open(posted_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"Error saving posted items: {e}")
+
+def get_item_id(entry):
+    """Generate unique ID for an entry - matches the data structure from Stacker.News"""
+    # Using link as the primary identifier since it's most reliable for Stacker.News posts
+    if 'link' in entry and entry['link']:
+        return entry['link']
+    elif 'url' in entry and entry['url']:
+        return entry['url']
+    elif 'id' in entry:
+        return str(entry['id'])
+    else:
+        # Fallback: create ID from title + timestamp
+        title = entry.get('title', 'untitled')
+        return f"{title}_{int(time.time())}"
 
 class NostrPoster:
-    def __init__(self, privkey, relays):
-        self.privkey = privkey
-        self.relays = relays
-        self.pk = PrivateKey.from_nsec(privkey)
+    """Main class for posting to Nostr network"""
+    
+    def __init__(self, privkey=None, relays=None):
+        self.privkey = privkey or NOSTR_PRIVATE_KEY
+        self.relays = relays or NOSTR_RELAYS
+        
+        try:
+            self.pk = PrivateKey.from_nsec(self.privkey)
+        except Exception as e:
+            print(f"Error loading private key: {e}")
+            raise
+            
         self.relay_manager = RelayManager()
-        for relay in relays:
-            self.relay_manager.add_relay(relay)
+        
+        # Add relays
+        for relay in self.relays:
+            try:
+                self.relay_manager.add_relay(relay)
+            except Exception as e:
+                print(f"Warning: Could not add relay {relay}: {e}")
+        
+        # Give relays time to connect
         time.sleep(1.25)
 
-    def build_nostr_entry(self, entry):
+    def build_nostr_message(self, entry):
+        """Build the message content for Nostr - matches Twitter template exactly"""
         return f"@{entry['author']} just posted 「{entry['title']}」 in #Design. Check it out at {entry['link']}"
 
-    def post(self, entry, posted_set=None):
-        link = entry.get('link')
-        if not link:
-            print("No link in entry, skipping.")
+    def post_item(self, entry):
+        """Post a single item to Nostr with duplicate checking"""
+        # Load posted items cache
+        posted_items = load_posted_items()
+        
+        # Get item ID
+        item_id = get_item_id(entry)
+        
+        # Check if already posted
+        if item_id in posted_items:
+            title = entry.get('title', 'Unknown')[:50]
+            print(f"Skipping already posted item: {title}...")
             return False
-        if posted_set is not None and link in posted_set:
-            print(f"Already posted: {link}")
-            return False
+        
         try:
-            out_str = self.build_nostr_entry(entry)
-            event = Event(out_str)
+            # Build message using exact Twitter template
+            message = self.build_nostr_message(entry)
+            
+            # Create and sign event
+            event = Event(message)
             event.sign(self.pk.hex())
+            
+            # Publish to relays
             self.relay_manager.publish_event(event)
             self.relay_manager.run_sync()
-            print(f"Posted to Nostr: {out_str}")
-            if posted_set is not None:
-                posted_set.add(link)
-                save_posted_cache(posted_set)
+            
+            # Add to posted items and save cache
+            posted_items.add(item_id)
+            save_posted_items(posted_items)
+            
+            title = entry.get('title', 'Unknown')[:50]
+            print(f"✓ Posted to Nostr: {title}...")
+            print(f"  Message: {message}")
+            
             return True
+            
         except Exception as e:
-            print(f"Submitting to Nostr failed: {e}")
+            title = entry.get('title', 'Unknown')[:50]
+            print(f"✗ Failed to post to Nostr: {title}...")
+            print(f"  Error: {e}")
             return False
 
-    def close(self):
-        self.relay_manager.close_connections()
+    def post_multiple_items(self, entries):
+        """Post multiple items with delay between posts"""
+        if not entries:
+            print("No items to post")
+            return
+        
+        posted_count = 0
+        skipped_count = 0
+        
+        for i, entry in enumerate(entries):
+            print(f"\nProcessing item {i+1}/{len(entries)}...")
+            
+            success = self.post_item(entry)
+            if success:
+                posted_count += 1
+                # Add delay between posts to avoid rate limiting
+                if i < len(entries) - 1:  # Don't delay after last item
+                    time.sleep(2)
+            else:
+                skipped_count += 1
+        
+        print(f"\n--- Summary ---")
+        print(f"Posted: {posted_count}")
+        print(f"Skipped: {skipped_count}")
+        print(f"Total processed: {len(entries)}")
 
+# Convenience functions for backward compatibility
+def post_to_nostr(entry):
+    """Simple function to post a single item"""
+    poster = NostrPoster()
+    try:
+        success = poster.post_item(entry)
+        return success
+    finally:
+        poster.close()
+
+def post_multiple_to_nostr(entries):
+    """Simple function to post multiple items"""
+    poster = NostrPoster()
+    try:
+        poster.post_multiple_items(entries)
+    finally:
+        poster.close()
+
+# Main execution for command line usage
 if __name__ == "__main__":
     import sys
-    import json
-    posted = load_posted_cache()
-    if len(sys.argv) > 1:
-        entry = json.loads(sys.argv[1])
-        poster = NostrPoster(NOSTR_PRIVATE_KEY, NOSTR_RELAYS)
-        poster.post(entry, posted)
-        poster.close()
-    else:
-        print("Usage: python3 nostr.py '{\"title\":...,\"link\":...,\"author\":...}'")
+    
+    if len(sys.argv) < 2:
+        print("Usage:")
+        print("  Single item: python3 nostr.py '{\"title\":\"...\",\"link\":\"...\",\"author\":\"...\"}'")
+        print("  JSON file:   python3 nostr.py --file items.json")
+        sys.exit(1)
+    
+    try:
+        if sys.argv[1] == "--file":
+            # Load items from JSON file
+            if len(sys.argv) < 3:
+                print("Error: Please specify JSON file path")
+                sys.exit(1)
+            
+            with open(sys.argv[2], 'r', encoding='utf-8') as f:
+                entries = json.load(f)
+            
+            if not isinstance(entries, list):
+                entries = [entries]
+            
+            post_multiple_to_nostr(entries)
+            
+        else:
+            # Single item from command line argument
+            entry = json.loads(sys.argv[1])
+            success = post_to_nostr(entry)
+            sys.exit(0 if success else 1)
+            
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON format: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"Error: File not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
