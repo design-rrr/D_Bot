@@ -12,7 +12,8 @@ NOSTR_RELAYS = [
     "wss://nostr.easydns.ca",
     "wss://nostrrelay.com",
     "wss://relay.snort.social",
-    "wss://relay.nsecbunker.com"
+    "wss://relay.nsecbunker.com",
+    "wss://relay.primal.net"
 ]
 
 POSTED_CACHE = "posted.txt"
