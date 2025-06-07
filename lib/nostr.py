@@ -67,9 +67,9 @@ def save_posted_items(posted_items, posted_file=POSTED_CACHE_FILE):
 def get_item_id(entry):
     """Generate unique ID for an entry - matches the data structure from Stacker.News"""
     # Using link as the primary identifier since it's most reliable for Stacker.News posts
-    if 'link' in entry and entry['link']:
-        return entry['link']
-    elif 'url' in entry and entry['url']:
+    # if 'link' in entry and entry['link']:
+    #   return entry['link']
+    if 'url' in entry and entry['url']:
         return entry['url']
     elif 'id' in entry:
         return str(entry['id'])
