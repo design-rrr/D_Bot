@@ -53,8 +53,7 @@ async function postToTwitter({ title, link, author }) {
 
 async function postToNostr({ title, link, author }) {
   // Use absolute path to nostr.py for CI and local compatibility
-  const __dirname = dirname(fileURLToPath(import.meta.url))
-  const scriptPath = resolve(__dirname, 'nostr.py')
+  const scriptPath = resolve(process.cwd(), 'nostr.py')
   return new Promise((resolve, reject) => {
     const entry = JSON.stringify({
       title,
