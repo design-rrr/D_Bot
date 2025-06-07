@@ -50,14 +50,17 @@ async function postToTwitter({ title, link, author }) {
 }
 
 async function postToNostr({ title, link, author }) {
-  // Call nostr.py as a subprocess
+  // Call nostr.py as a subprocess (fix path for GitHub Actions)
   return new Promise((resolve, reject) => {
     const entry = JSON.stringify({
       title,
       link,
+      author,
       tags: [],
     })
-    const py = spawn('python3', ['nostr.py', entry])
+    // Use __dirname to get the correct path if running from a subdir
+    const scriptPath = './nostr.py'
+    const py = spawn('python3', [scriptPath, entry])
     py.stdout.on('data', data => process.stdout.write(data))
     py.stderr.on('data', data => process.stderr.write(data))
     py.on('close', code => {
@@ -94,6 +97,8 @@ export async function runHnfBot() {
       posted.add(item.link)
       savePostedCache(posted)
     }
+    // Wait 1 second before next post
+    await new Promise(res => setTimeout(res, 1000))
   }
   console.log('✅ Done.')
 }
