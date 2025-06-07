@@ -29,11 +29,26 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Download posted.txt artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: posted-txt
+          path: .
+
       - name: Run HnF Poster Bot
-        run: node hnfPoster.js
+        run: |
+          pwd
+          ls -l
+          node hnfPoster.js
         env:
           TWITTER_POSTER_API_KEY: ${{ secrets.TWITTER_POSTER_API_KEY }}
           TWITTER_POSTER_API_KEY_SECRET: ${{ secrets.TWITTER_POSTER_API_KEY_SECRET }}
           TWITTER_POSTER_ACCESS_TOKEN: ${{ secrets.TWITTER_POSTER_ACCESS_TOKEN }}
           TWITTER_POSTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_POSTER_ACCESS_TOKEN_SECRET }}
           NOSTR_PRIVATE_KEY: ${{ secrets.NOSTR_PRIVATE_KEY }}
+
+      - name: Upload posted.txt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: posted-txt
+          path: posted.txt
