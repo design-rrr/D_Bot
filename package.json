@@ -1,7 +1,7 @@
 {
   "name": "hnfbot",
   "type": "module",
-  "main": "hnfPoster.js",
+  "main": "D_Poster.js",
   "dependencies": {
     "node-fetch": "^3.0.0",
     "dotenv": "^16.0.0",
