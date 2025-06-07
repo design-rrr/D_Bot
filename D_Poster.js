@@ -54,7 +54,7 @@ async function postToTwitter({ title, link, author }) {
 async function postToNostr({ title, link, author }) {
   // Always resolve nostr.py relative to this file (project root)
   const __dirname = dirname(fileURLToPath(import.meta.url))
-  const scriptPath = resolve(__dirname, 'nostr.py')
+  const scriptPath = resolve(__dirname, 'lib/nostr.py')
   return new Promise((resolve, reject) => {
     const entry = JSON.stringify({
       title,
