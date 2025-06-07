@@ -52,8 +52,10 @@ async function postToTwitter({ title, link, author }) {
 }
 
 async function postToNostr({ title, link, author }) {
-  // Use absolute path to nostr.py for CI and local compatibility
-  const scriptPath = resolve(process.cwd(), 'nostr.py')
+  let scriptPath = resolve('nostr.py')
+  if (!fs.existsSync(scriptPath)) {
+    scriptPath = resolve(process.cwd(), 'nostr.py')
+  }
   return new Promise((resolve, reject) => {
     const entry = JSON.stringify({
       title,
