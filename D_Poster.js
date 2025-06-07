@@ -45,7 +45,7 @@ async function postToTwitter({ title, link, author }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  let message = `${author} just posted ${title} in ~Design. Check out now ${link}`
+  let message = `${author} just posted ${title} in #Design. Check out now ${link}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
@@ -105,6 +105,6 @@ export async function runHnfBot() {
   console.log('✅ Done.')
 }
 
-if (process.argv[1].includes('hnfPoster.js')) {
+if (process.argv[1].includes('D_Poster.js')) {
   runHnfBot()
 }
