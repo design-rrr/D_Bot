@@ -7,13 +7,16 @@ from pynostr.key import PrivateKey
 # Load private key from environment variable or fallback
 NOSTR_PRIVATE_KEY = os.environ.get("NOSTR_PRIVATE_KEY", "nsec12345")
 NOSTR_RELAYS = [
-    "wss://relayable.org",
     "wss://relay.damus.io",
     "wss://nostr.easydns.ca",
-    "wss://nostrrelay.com",
     "wss://relay.snort.social",
     "wss://relay.nsecbunker.com",
-    "wss://relay.primal.net"
+    "wss://relay.primal.net",
+    "wss://nos-lol",
+    "wss://bitcoiner-social",
+    "wss://nostr.land",
+    "wss://nostr.wine",
+    "wss://purplerelay.com"
 ]
 
 POSTED_CACHE = "posted.txt"
