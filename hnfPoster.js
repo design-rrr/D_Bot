@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 import fs from 'fs'
 import { TwitterApi } from 'twitter-api-v2'
 import { spawn } from 'child_process'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
 
 dotenv.config()
 
@@ -50,7 +52,9 @@ async function postToTwitter({ title, link, author }) {
 }
 
 async function postToNostr({ title, link, author }) {
-  // Call nostr.py as a subprocess (fix path for GitHub Actions)
+  // Use absolute path to nostr.py for CI and local compatibility
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+  const scriptPath = resolve(__dirname, 'nostr.py')
   return new Promise((resolve, reject) => {
     const entry = JSON.stringify({
       title,
@@ -58,8 +62,6 @@ async function postToNostr({ title, link, author }) {
       author,
       tags: [],
     })
-    // Use __dirname to get the correct path if running from a subdir
-    const scriptPath = './nostr.py'
     const py = spawn('python3', [scriptPath, entry])
     py.stdout.on('data', data => process.stdout.write(data))
     py.stderr.on('data', data => process.stderr.write(data))
