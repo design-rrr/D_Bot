@@ -1,6 +1,5 @@
 {
   "name": "d_bot",
-  "type": "module",
   "main": "D_Poster.js",
   "dependencies": {
     "node-fetch": "^3.0.0",
