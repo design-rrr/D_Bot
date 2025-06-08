@@ -37,6 +37,21 @@ async function getRSSItems() {
   })
 }
 
+function getRandomMessageFormat({ title, link, author }) {
+  const formats = [
+    // 1. Original
+    () => `${author} just posted ${title} in ~HealthAndFitness. Check out now ${link}`,
+    // 2. Variation 2
+    () => `You should not miss ${author} posting ${title} on ~HealthAndFitness. Click NOW ${link}`,
+    // 3. Variation 3
+    () => `This is really an active post ${title} by ${author} on ~HealthAndFitness. Join in! ${link}`,
+    // 4. Variation 4
+    () => `You might have missed ${title} by ${author}. You won't miss it anymore. Check it here ${link}`
+  ]
+  const idx = Math.floor(Math.random() * formats.length)
+  return formats[idx]()
+}
+
 async function postToTwitter({ title, link, author }) {
   if (!process.env.TWITTER_POSTER_API_KEY) return console.log('Twitter not configured')
   const client = new TwitterApi({
@@ -45,9 +60,9 @@ async function postToTwitter({ title, link, author }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  // Append /r/realBitcoinDog to the link
+  
   const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
-  let message = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${fullLink}`
+  let message = getRandomMessageFormat({ title, link: fullLink, author })
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
@@ -65,6 +80,7 @@ async function postToNostr({ title, link, author }) {
       link: fullLink,
       author,
       tags: [],
+      // Add a random format index for Nostr (optional, for future extensibility)
     })
     const py = spawn('python3', [scriptPath, entry])
     py.stdout.on('data', data => process.stdout.write(data))
