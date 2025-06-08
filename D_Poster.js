@@ -12,7 +12,8 @@ const RSS_URL = 'https://stacker.news/~Design/rss'
 const POSTED_CACHE = './posted.txt'
 
 // Add Port Binding to avoid unhealthy tag and potential restart
-const express = require('express');
+// const express = require('express');
+import express from 'express';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -144,3 +145,11 @@ export async function runDbot() {
 if (process.argv[1].includes('D_Poster.js')) {
   runDbot()
 }
+
+app.get('/', (req, res) => {
+  res.send('Bot is running');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
