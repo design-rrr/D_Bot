@@ -6,6 +6,7 @@ import { spawn } from 'child_process'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
+
 dotenv.config()
 
 const RSS_URL = 'https://stacker.news/~Design/rss'
@@ -16,6 +17,7 @@ const POSTED_CACHE = './posted.txt'
 import express from 'express';
 const app = express();
 const PORT = process.env.PORT || 3000;
+let server;
 server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });
@@ -23,7 +25,6 @@ app.get('/', (req, res) => {
   res.send('Bot is running');
 });
 
-let server;
 
 // Add graceful shutdown handling
 process.on('SIGTERM', () => {
