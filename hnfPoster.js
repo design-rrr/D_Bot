@@ -28,7 +28,7 @@ async function getRSSItems() {
   const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)]
   return items.map(m => {
     const block = m[1]
-    const link = block.match(/<link>(.*?)<\/link>/)?.[1]?.trim()
+    const link = block.match(/<guid>(.*?)<\/guid>/)?.[1]?.trim()
     const title = block.match(/<title>([\s\S]*?)<\/title>/)?.[1]?.trim()
     const author = block.match(/<atom:author>[\s\S]*?<atom:name>([\s\S]*?)<\/atom:name>[\s\S]*?<\/atom:author>/)?.[1]?.trim()
       || block.match(/<author>[\s\S]*?<name>([\s\S]*?)<\/name>[\s\S]*?<\/author>/)?.[1]?.trim()
