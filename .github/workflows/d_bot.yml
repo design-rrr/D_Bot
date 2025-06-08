@@ -1,4 +1,4 @@
-name: Run HnF Bot
+name: Run D Bot
 
 on:
   schedule:
@@ -36,11 +36,11 @@ jobs:
           path: .
         continue-on-error: true
 
-      - name: Run HnF Poster Bot
+      - name: Run D Poster Bot
         run: |
           pwd
           ls -l
-          node hnfPoster.js
+          node D_Poster.js
         env:
           TWITTER_POSTER_API_KEY: ${{ secrets.TWITTER_POSTER_API_KEY }}
           TWITTER_POSTER_API_KEY_SECRET: ${{ secrets.TWITTER_POSTER_API_KEY_SECRET }}
