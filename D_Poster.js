@@ -16,18 +16,14 @@ const POSTED_CACHE = './posted.txt'
 import express from 'express';
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
 app.get('/', (req, res) => {
   res.send('Bot is running');
 });
 
 let server;
-
-// Replace your app.listen with:
-const PORT = process.env.PORT || 10000;
-server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-});
 
 // Add graceful shutdown handling
 process.on('SIGTERM', () => {
