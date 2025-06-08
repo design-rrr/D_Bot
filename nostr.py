@@ -41,7 +41,7 @@ class NostrPoster:
         time.sleep(1.25)
 
     def build_nostr_entry(self, entry):
-        return f"{entry['author']} just posted {entry['title']} in ~HealthAndFitness. Check out now {entry['link']}"
+        return f"@{entry['author']} just posted {entry['title']} in #Design. Check it out {entry['link']}"
 
     def post(self, entry, posted_set=None):
         link = entry.get('link')
