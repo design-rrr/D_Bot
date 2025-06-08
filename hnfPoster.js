@@ -45,7 +45,9 @@ async function postToTwitter({ title, link, author }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  let message = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${link}`
+  // Append /r/realBitcoinDog to the link
+  const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
+  let message = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${fullLink}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
@@ -56,9 +58,11 @@ async function postToNostr({ title, link, author }) {
   const __dirname = dirname(fileURLToPath(import.meta.url))
   const scriptPath = resolve(__dirname, 'nostr.py')
   return new Promise((resolve, reject) => {
+    // Append /r/realBitcoinDog to the link
+    const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
     const entry = JSON.stringify({
       title,
-      link,
+      link: fullLink,
       author,
       tags: [],
     })
