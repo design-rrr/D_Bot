@@ -21,8 +21,38 @@ app.get('/', (req, res) => {
   res.send('Bot is running');
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+let server;
+
+// Replace your app.listen with:
+const PORT = process.env.PORT || 10000;
+server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+// Add graceful shutdown handling
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        console.log('Process terminated');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+        console.log('Process terminated');
+        process.exit(0);
+    });
+});
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.log(`Port ${PORT} is already in use`);
+        process.exit(1);
+    } else {
+        console.error('Server error:', err);
+    }
 });
 
 // Store processed post IDs in memory or database
@@ -141,10 +171,4 @@ if (process.argv[1].includes('D_Poster.js')) {
   runDbot()
 }
 
-app.get('/', (req, res) => {
-  res.send('Bot is running');
-});
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
