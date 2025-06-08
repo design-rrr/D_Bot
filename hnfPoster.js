@@ -75,12 +75,14 @@ async function postToNostr({ title, link, author }) {
   return new Promise((resolve, reject) => {
     // Append /r/realBitcoinDog to the link
     const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
+    // Use the same random message format for Nostr as for Twitter
+    const message = getRandomMessageFormat({ title, link: fullLink, author })
     const entry = JSON.stringify({
       title,
       link: fullLink,
       author,
+      message,
       tags: [],
-      // Add a random format index for Nostr (optional, for future extensibility)
     })
     const py = spawn('python3', [scriptPath, entry])
     py.stdout.on('data', data => process.stdout.write(data))
