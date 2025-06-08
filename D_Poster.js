@@ -92,24 +92,6 @@ async function getRSSItems() {
   })
 }
 
-// Add Rate Limit for Twitter posting function to handle rate limits gracefully:
-async function postToTwitter(message) {
-    try {
-        const result = await twitterClient.v2.tweet(message);
-        console.log('Posted to Twitter:', message);
-        return result;
-    } catch (error) {
-        if (error.code === 429) {
-            console.log('Twitter rate limit hit. Skipping Twitter post.');
-            console.log(`Rate limit resets at: ${new Date(error.rateLimit.reset * 1000)}`);
-            return null; // Skip Twitter posting but continue with other platforms
-        } else {
-            console.error('Twitter error:', error);
-            throw error;
-        }
-    }
-}
-
 async function postToTwitter({ title, link, author }) {
   if (!process.env.TWITTER_POSTER_API_KEY) return console.log('Twitter not configured')
   const client = new TwitterApi({
