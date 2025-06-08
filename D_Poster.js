@@ -46,7 +46,7 @@ async function postToTwitter({ title, link, author }) {
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
   // Append /r/realBitcoinDog to the link
-  const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/deSign_r'
+  const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
   let message = `@${author} just posted ${title} in #Design. Check it out ${fullLink}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
@@ -76,7 +76,7 @@ async function postToNostr({ title, link, author }) {
   })
 }
 
-export async function runHnfBot() {
+export async function runDbot() {
   const posted = loadPostedCache()
   const items = await getRSSItems()
 
@@ -109,6 +109,6 @@ export async function runHnfBot() {
   console.log('✅ Done.')
 }
 
-if (process.argv[1].includes('hnfPoster.js')) {
-  runHnfBot()
+if (process.argv[1].includes('D_Poster.js')) {
+  runDbot()
 }
