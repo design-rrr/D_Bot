@@ -11,6 +11,38 @@ dotenv.config()
 const RSS_URL = 'https://stacker.news/~Design/rss'
 const POSTED_CACHE = './posted.txt'
 
+// Add Port Binding to avoid unhealthy tag and potential restart
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.send('Bot is running');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Store processed post IDs in memory or database
+const processedPosts = new Set();
+
+// Before posting, check if already processed
+if (!processedPosts.has(postId)) {
+  // Post to social media
+  processedPosts.add(postId);
+}
+
+try {
+  await twitterClient.tweet(content);
+} catch (error) {
+  if (error.code === 429) {
+    console.log('Rate limit hit, skipping Twitter post');
+  }
+}
+
+////
+
 function loadPostedCache() {
   if (!fs.existsSync(POSTED_CACHE)) return new Set()
   const raw = fs.readFileSync(POSTED_CACHE, 'utf8').trim()
@@ -45,7 +77,7 @@ async function postToTwitter({ title, link, author }) {
     accessToken: process.env.TWITTER_POSTER_ACCESS_TOKEN,
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
-  // Append /r/realBitcoinDog to the link
+  // Append /r/deSign_r to the link
   const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
   let message = `@${author} just posted ${title} in #Design. Check it out ${fullLink}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
@@ -58,7 +90,7 @@ async function postToNostr({ title, link, author }) {
   const __dirname = dirname(fileURLToPath(import.meta.url))
   const scriptPath = resolve(__dirname, 'nostr.py')
   return new Promise((resolve, reject) => {
-    // Append /r/realBitcoinDog to the link
+    // Append /r/deSign_r to the link
     const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
     const entry = JSON.stringify({
       title,
