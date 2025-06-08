@@ -28,11 +28,6 @@ app.listen(PORT, () => {
 // Store processed post IDs in memory or database
 const processedPosts = new Set();
 
-// Before posting, check if already processed
-if (!processedPosts.has(postId)) {
-  // Post to social media
-  processedPosts.add(postId);
-}
 
 try {
   await twitterClient.tweet(content);
