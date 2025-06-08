@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 
 dotenv.config()
 
-const RSS_URL = 'https://stacker.news/~HealthAndFitness/rss'
+const RSS_URL = 'https://stacker.news/~Design/rss'
 const POSTED_CACHE = './posted.txt'
 
 function loadPostedCache() {
@@ -46,8 +46,8 @@ async function postToTwitter({ title, link, author }) {
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
   // Append /r/realBitcoinDog to the link
-  const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
-  let message = `${author} just posted ${title} in ~HealthAndFitness. Check out now ${fullLink}`
+  const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/deSign_r'
+  let message = `@${author} just posted ${title} in #Design. Check it out ${fullLink}`
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
   console.log('Tweeted:', message)
@@ -59,7 +59,7 @@ async function postToNostr({ title, link, author }) {
   const scriptPath = resolve(__dirname, 'nostr.py')
   return new Promise((resolve, reject) => {
     // Append /r/realBitcoinDog to the link
-    const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
+    const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
     const entry = JSON.stringify({
       title,
       link: fullLink,
