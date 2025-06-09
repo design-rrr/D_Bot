@@ -41,6 +41,9 @@ class NostrPoster:
         time.sleep(1.25)
 
     def build_nostr_entry(self, entry):
+        # Use the message if provided, else fallback to default
+        if 'message' in entry and entry['message']:
+            return entry['message']
         return f"{entry['author']} just posted {entry['title']} in ~HealthAndFitness. Check out now {entry['link']}"
 
     def post(self, entry, posted_set=None):
