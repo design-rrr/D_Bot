@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 
 dotenv.config()
 
-const RSS_URL = 'https://stacker.news/~HealthAndFitness/rss'
+const RSS_URL = 'https://stacker.news/~Design/rss'
 const POSTED_CACHE = './posted.txt'
 
 function loadPostedCache() {
@@ -40,13 +40,13 @@ async function getRSSItems() {
 function getRandomMessageFormat({ title, link, author }) {
   const formats = [
     // 1. Original
-    () => `${author} just posted ${title} in ~HealthAndFitness. Check out now ${link}`,
+    () => `@${author} just posted \"${title}\" in #Design. Read more ${link}`,
     // 2. Variation 2
-    () => `You should not miss ${author} posting ${title} on ~HealthAndFitness. Click NOW ${link}`,
+    () => `You should not miss @${author} posting \"${title}\" on #Design. Click ${link}`,
     // 3. Variation 3
-    () => `This is really an active post ${title} by ${author} on ~HealthAndFitness. Join in! ${link}`,
+    () => `This is really an active post \"${title}\" by @${author} on #Design. Join in at ${link}`,
     // 4. Variation 4
-    () => `You might have missed ${title} by ${author}. You won't miss it anymore. Check it here ${link}`
+    () => `Curious to know about \"${title}\" by @${author} in #Design? Learn more ${link}`
   ]
   const idx = Math.floor(Math.random() * formats.length)
   return formats[idx]()
@@ -61,7 +61,7 @@ async function postToTwitter({ title, link, author }) {
     accessSecret: process.env.TWITTER_POSTER_ACCESS_TOKEN_SECRET
   })
   
-  const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
+  const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
   let message = getRandomMessageFormat({ title, link: fullLink, author })
   if (message.length > 280) message = message.slice(0, 277) + '...'
   await client.v2.tweet(message)
@@ -73,8 +73,8 @@ async function postToNostr({ title, link, author }) {
   const __dirname = dirname(fileURLToPath(import.meta.url))
   const scriptPath = resolve(__dirname, 'nostr.py')
   return new Promise((resolve, reject) => {
-    // Append /r/realBitcoinDog to the link
-    const fullLink = link.endsWith('/r/realBitcoinDog') ? link : link + '/r/realBitcoinDog'
+    // Append /r/deSign_r to the link
+    const fullLink = link.endsWith('/r/deSign_r') ? link : link + '/r/deSign_r'
     // Use the same random message format for Nostr as for Twitter
     const message = getRandomMessageFormat({ title, link: fullLink, author })
     const entry = JSON.stringify({
@@ -94,7 +94,7 @@ async function postToNostr({ title, link, author }) {
   })
 }
 
-export async function runHnfBot() {
+export async function runD_Bot() {
   const posted = loadPostedCache()
   const items = await getRSSItems()
 
@@ -127,6 +127,6 @@ export async function runHnfBot() {
   console.log('✅ Done.')
 }
 
-if (process.argv[1].includes('hnfPoster.js')) {
-  runHnfBot()
+if (process.argv[1].includes('D_Poster.js')) {
+  runD_Bot()
 }
