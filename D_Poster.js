@@ -1,6 +1,5 @@
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
-import fs from 'fs'
 import { TwitterApi } from 'twitter-api-v2'
 import { spawn } from 'child_process'
 import { dirname, resolve } from 'path'
@@ -9,17 +8,43 @@ import { fileURLToPath } from 'url'
 dotenv.config()
 
 const RSS_URL = 'https://stacker.news/~Design/rss'
-const POSTED_CACHE = './posted.txt'
+const GIST_ID = process.env.GIST_ID
+const GIST_FILENAME = 'posted.txt'
+const GIST_TOKEN = process.env.GIST_TOKEN
 
-function loadPostedCache() {
-  if (!fs.existsSync(POSTED_CACHE)) return new Set()
-  const raw = fs.readFileSync(POSTED_CACHE, 'utf8').trim()
-  if (!raw) return new Set()
-  return new Set(raw.split('\n').map(l => l.trim()).filter(Boolean))
+// Debug: Check if GIST_ID and GIST_TOKEN are loaded
+if (!GIST_ID || !GIST_TOKEN) {
+  console.error('Missing GIST_ID or GIST_TOKEN!')
+  console.error('GIST_ID:', GIST_ID)
+  console.error('GIST_TOKEN:', GIST_TOKEN ? '[set]' : '[not set]')
+  process.exit(1)
 }
 
-function savePostedCache(postedSet) {
-  fs.writeFileSync(POSTED_CACHE, Array.from(postedSet).join('\n') + '\n')
+async function loadPostedCache() {
+  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    headers: { Authorization: `token ${GIST_TOKEN}` }
+  })
+  if (!res.ok) throw new Error('Failed to fetch Gist')
+  const data = await res.json()
+  const content = data.files[GIST_FILENAME]?.content || ''
+  return new Set(content.split('\n').map(l => l.trim()).filter(Boolean))
+}
+
+async function savePostedCache(postedSet) {
+  const body = {
+    files: {
+      [GIST_FILENAME]: { content: Array.from(postedSet).join('\n') + '\n' }
+    }
+  }
+  const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `token ${GIST_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  })
+  if (!res.ok) throw new Error('Failed to update Gist')
 }
 
 async function getRSSItems() {
@@ -39,7 +64,7 @@ async function getRSSItems() {
 
 function getRandomMessageFormat({ title, link, author }) {
   const formats = [
-    // 1. Original
+   // 1. Original
     () => `@${author} just posted \"${title}\" in #Design. Read more ${link}`,
     // 2. Variation 2
     () => `You should not miss @${author} posting \"${title}\" on #Design. Click ${link}`,
@@ -94,8 +119,8 @@ async function postToNostr({ title, link, author }) {
   })
 }
 
-export async function runD_Bot() {
-  const posted = loadPostedCache()
+export async function runDBot() {
+  const posted = await loadPostedCache()
   const items = await getRSSItems()
 
   for (const item of items) {
@@ -119,7 +144,7 @@ export async function runD_Bot() {
     }
     if (tweeted || nostrPosted) {
       posted.add(item.link)
-      savePostedCache(posted)
+      await savePostedCache(posted)
     }
     // Wait 1 second before next post
     await new Promise(res => setTimeout(res, 1000))
@@ -128,5 +153,5 @@ export async function runD_Bot() {
 }
 
 if (process.argv[1].includes('D_Poster.js')) {
-  runD_Bot()
+  runDBot()
 }
