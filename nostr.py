@@ -16,7 +16,7 @@ NOSTR_RELAYS = [
     "wss://nos.lol",
     "wss://bitcoiner.social",
     "wss://nostr.wine",
-    "wss://purplerelay.com"]
+    "wss://purplerelay.com"
 ]
 
 POSTED_CACHE = "posted.txt"
