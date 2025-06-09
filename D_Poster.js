@@ -146,8 +146,8 @@ export async function runDBot() {
       posted.add(item.link)
       await savePostedCache(posted)
     }
-    // Wait 1 second before next post
-    await new Promise(res => setTimeout(res, 1000))
+    // Wait 210 seconds before next post
+    await new Promise(res => setTimeout(res, 210000))
   }
   console.log('✅ Done.')
 }
