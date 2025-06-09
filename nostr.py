@@ -7,13 +7,16 @@ from pynostr.key import PrivateKey
 # Load private key from environment variable or fallback
 NOSTR_PRIVATE_KEY = os.environ.get("NOSTR_PRIVATE_KEY", "nsec12345")
 NOSTR_RELAYS = [
-    "wss://relayable.org",
+    "wss://relay.nsecbunker.com",
     "wss://relay.damus.io",
     "wss://nostr.easydns.ca",
-    "wss://nostrrelay.com",
     "wss://relay.snort.social",
     "wss://relay.nsecbunker.com",
-    "wss://relay.primal.net"
+    "wss://relay.primal.net",
+    "wss://nos.lol",
+    "wss://bitcoiner.social",
+    "wss://nostr.wine",
+    "wss://purplerelay.com"]
 ]
 
 POSTED_CACHE = "posted.txt"
@@ -44,7 +47,7 @@ class NostrPoster:
         # Use the message if provided, else fallback to default
         if 'message' in entry and entry['message']:
             return entry['message']
-        return f"{entry['author']} just posted {entry['title']} in ~HealthAndFitness. Check out now {entry['link']}"
+        return f"Hey! @{entry['author']} just posted \"{entry['title']}\" in #Design. Check it out at {entry['link']}"
 
     def post(self, entry, posted_set=None):
         link = entry.get('link')
