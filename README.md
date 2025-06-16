@@ -1,4 +1,4 @@
-# D_Bot 🤖 [![Run HnF Bot](https://github.com/axelvyrn/HnFBot/actions/workflows/hnfbot.yml/badge.svg)](https://github.com/axelvyrn/HnFBot/actions/workflows/hnfbot.yml)
+# D_Bot 🤖 [![Run D Bot](https://github.com/axelvyrn/HnFBot/actions/workflows/hnfbot.yml/badge.svg)](https://github.com/axelvyrn/HnFBot/actions/workflows/hnfbot.yml)
 `v0.2`
 Just another Node.js bot that automatically cross-posts design-related content from Stacker News/[~Design](https://stacker.news/~Design/r/deSign_r) to [Twitter](https://x.com/DeSign__r) and [Nostr](https://iris.to/deSign_r), tagging authors if they include their handles. Helping spread design inspiration across multiple social platforms, one note at time.
 
