@@ -65,13 +65,146 @@ async function getRSSItems() {
 function getRandomMessageFormat({ title, link, author }) {
   const formats = [
    // 1. Original
-    () => `@${author} just posted \"${title}\" in #Design. Read more ${link}`,
+    () => `@${author} just posted \"${title}\". Triggering #DesignThinking. Read more ${link}`,
     // 2. Variation 2
-    () => `You should not miss @${author} posting \"${title}\" on #Design. Click ${link}`,
+    () => `You should not miss @${author} posting \"${title}\"... #DesignInspiration. Click ${link}`,
     // 3. Variation 3
-    () => `This is really an active post \"${title}\" by @${author} on #Design. Join in at ${link}`,
+    () => `This is really an active post \"${title}\" by @${author} in #Design. Join in at ${link}`,
     // 4. Variation 4
-    () => `Curious to know about \"${title}\" by @${author} in #Design? Learn more ${link}`
+    () => `Curious to know about \"${title}\" by @${author} in #Design, triggeting #creativity. Learn more ${link}`,
+
+   // 1. Creative mastery & artistic focus
+  () => `@${author} shares \"${title}\" - another step toward #creative mastery. Explore #design & #innovation: ${link}`,
+
+  // 2. Design innovation angle  
+  () => `New creation from @${author}: \"${title}\". Crafting the future of visual expression. Discover #design & #creativity. ${link}`,
+  
+  // 3. Minimalist design theme
+  () => `@${author} contributes \"${title}\" to the minimal conversation. Less is more, #simplicity is law. #KISS Experience with #designThinking & #creativity: ${link}`,
+    
+  // 4. Artistic craftsmanship emphasis
+  () => `\"${title}\" by @${author} - because authentic #creativity isn't negotiable, that's the true #art of #design. ${link}`,
+  
+  // 5. Traditional design ethos
+  () => `@${author} drops wisdom: \"${title}\". #Timeless principles in action. Embrace the #creative #designCommunity on #StackerNews. ${link}`,
+  
+  // 6. Creative rebellion
+  () => `New vision from @${author}: \"${title}\". Building unforgettable #experiences, one #design at a time with #creativity. ${link}`,
+
+  // 7. Design activism
+  () => `@${author} presents \"${title}\" - the future belongs to those who create it. Beautiful work of #design & #creativity. ${link}`,
+
+  // 8. Creative sovereignty
+  () => `\"${title}\" crafted by @${author}. Breaking conventions apart, one #design at a time, with #creativity. ${link}`,
+
+  // 9. Seasonal design focus
+  () => `@${author} unveils \"${title}\" - embracing inspiration. Marvel #design & #creativity: ${link}`,
+
+  // 10. Design innovation
+  () => `Fresh approach from @${author}: \"${title}\". Revolutionizing the #creative landscape. Discover #design & #creativity; ${link}`,
+
+  // 11. Color mastery theme
+  () => `@${author} colors the world with \"${title}\" - with passion. See the magic of #design & #creativity. ${link}`,
+
+  // 12. Typography craft
+  () => `\"${title}\" by @${author} - because good things speaks volumes without words. Experience clarity with #design & #creativity: ${link}`,
+
+  // 13. Street art culture
+  () => `@${author} brings wisdom: \"${title}\". Authentic at its finest. Get inspired by its #designThinking: ${link}`,
+
+  // 14. Digital art fusion
+  () => `New experiment from @${author}: \"${title}\". Technology meets beauty. Mind-bending #design & #creativity: ${link}`,
+
+  // 15. Retro design revival
+  () => `@${author} revives nostalgia with \"${title}\" - never looked so fresh. Feel inspired by its #designInspiration & #creativity: ${link}`,
+
+  // 16. Sustainable design
+  () => `\"${title}\" crafted by @${author}. Waste nothing purposefully. Conscious creation for #design & #creativity. ${link}`,
+  
+  // 17. Bold and experimental
+  () => `@${author} pushes boundaries with \"${title}\" - where #bold becomes beautiful. Ignite your imagination, #design & #creativity: ${link}`,
+  
+  // 18. User experience focus
+  () => `Fresh insight from @${author}: \"${title}\". The ancient arts lives on. Explore #design & #creativity: ${link}`,
+  
+  // 19. Brand identity perfection
+  () => `@${author} shapes \"${title}\" - crafts tells stories. Connect with purpose, #designtips & #creativity: ${link}`,
+
+  // 20. Design thinking
+  () => `\"${title}\" conceived by @${author} - capturing #ideas in visual form. Brilliant thinking awaits #design & #creativity: ${link}`,
+
+  // 21. Motion design magic
+  () => `@${author} shares \"${title}\" - bringing beauty to life. Dynamic #design & #creativity. ${link}`,
+
+  // 22. Illustration artistry
+  () => `Insight from @${author}: \"${title}\". Growing your soul. A bliss for #creative #design: ${link}`,
+
+  // 23. Web design alchemy
+  () => `@${author} codes \"${title}\" - digital #alchemy in browser windows. #design & #creativity at work:  ${link}`,
+
+  // 24. Print design mastery
+  () => `\"${title}\" typed by @${author}. Starting conversations with brilliance always works. Tasteful #design & #creativity: ${link}`,
+
+  // 25. Photography composition
+  () => `@${author} captures life with \"${title}\" - where words becomes sculpture, framing responsibly with #design & #creativity: ${link}`,
+
+  // 26. Packaging innovation
+  () => `Smart one from @${author}: \"${title}\". Protects what words cannot. Function meets #designtips & #creativity: ${link}`,
+
+  // 27. Logo design mastery
+  () => `@${author} symbolizes \"${title}\" - taming #ideas for perfect marks. Identify #design #thinking: ${link}`,
+
+  // 28. Design tools focus
+  () => `\"${title}\" crafted by @${author}. Sharp #tools, sharper techniques, sharpest results. Precision work for #design & #creativity: ${link}`,
+
+  // 29. Creative process
+  () => `@${author} documents \"${title}\" - every #process tells #creative stories. Behind the scenes of #design & #creativity. ${link}`,
+
+  // 30. Design inspiration
+  () => `Inspiring work from @${author}: \"${title}\". #Inspiration connects minds across centuries with #creative #design. ${link}`,
+
+  // 31. Product design craft
+  () => `@${author} craft \"${title}\" - respecting every #function with purpose, improving #designtips & #creativity. ${link}`,
+
+  // 32. Design trends
+  () => `\"${title}\" by @${author}. Modern #trends meet timeless principles. Stylish evolution for #design & #creativity: ${link}`,
+
+  // 33. Creative collaboration
+  () => `@${author} shares \"${title}\" - in perfect harmony. Magic for #design & #creativity: ${link}`,
+
+  // 34. Visual storytelling
+  () => `Fresh from @${author}: \"${title}\". #Stories are visual journeys on screens. A Narrative for #designtips & #creativity. ${link}`,
+    
+  // 35. Design critique wisdom
+  () => `@${author} analyzes \"${title}\" - where #critique meets growth in harmony. Perfect feedback for #designer & #creative #people:  ${link}`,
+
+  // 36. Creative revelation
+  () => `\"${title}\" revealed by @${author}. Inspiration transforms hidden beauty. Pure brilliance for #design & #creativity.  ${link}`,
+
+  // 37. Design research
+  () => `@${author} researches \"${title}\" - evidence-based #design tells informed stories. Data-driven beauty to #inspire #creativity:  ${link}`,
+
+  // 38. Prototyping techniques
+  () => `Wisdom from @${author}: \"${title}\". Fast and loose #prototyping builds character. Progress revealed for #designtips & #creativity. ${link}`,
+
+  // 39. Design systems
+  () => `@${author} posted \"${title}\" - where #consistency meets scalable #creativity. Organized beauty for #designThinking. ${link}`,
+
+  // 40. Creative fusion
+  () => `\"${title}\" fused by @${author}. Disciplines collide, creating #innovation magic in #pixels. Boundary breaking #design & #creativity. ${link} `,
+
+  // 41. Aesthetic exploration
+  () => `@${author} explores \"${title}\" - chasing the perfect #aesthetic through depths. Visual secrets for #design & #creativity. ${link}`,
+  
+  // 42. Design presentation
+  () => `Vision from @${author}: \"${title}\". #Presentation transforms ideas into poetry. Persuasive #art for #designer & #cretive #brains. ${link}`,
+
+  // 43. Creative morning routine
+  () => `@${author} starts with \"${title}\" - morning wrapped in inspired dreams. Fresh perspective for #minimalism #designer:  ${link}`,
+
+    // 44. Late night designing
+  () => `\"${title}\" by @${author} for midnight #inspiration that demands expression. #Creative dedication for #designCommunity ${link}` 
+
   ]
   const idx = Math.floor(Math.random() * formats.length)
   return formats[idx]()
